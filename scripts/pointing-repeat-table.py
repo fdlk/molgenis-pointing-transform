@@ -3,6 +3,7 @@ import pandas as pd
 
 from HeaderData import HeaderData
 from HeaderData import StudyEvent
+from HeaderData import CaseReportFrom
 
 fileName = 'TAB_test_mogenis_2_2019-08-14-160715176 5.tsv'
 fileFolder = '/Users/connor/Documents/Projecten/Pointing/sprint141/'
@@ -30,6 +31,16 @@ with open(filePath, 'r') as inputFile:
             studyEvent.name = str(' '.join(parts[1:-1]))
             studyEvent.key = str(parts[-1])
             header.studyEvents.append(studyEvent)
+       elif line.startswith('CRF'):
+            splitIndex = line.index('-')
+            leftPart = line[:splitIndex]
+            rightPart = line[splitIndex:]
+            crf = CaseReportFrom()
+            crf.name = ' '.join(leftPart.split()[1:])
+            crf.version = rightPart.split()[1]
+            crf.key = rightPart.split()[-1]
+            header.studyEvents[-1].caseReportFroms.append(crf)
+
        if line in ['\n', '\r\n']:  # check for empty line indicating end of header
             break
 
@@ -40,5 +51,8 @@ print('Study name: ' + str(header.studyName))
 print('Study Event Definitions: ' + str(header.nStudyEventsDefs))
 print('Number of subjects: ' + str(header.nSubjects))
 
+print('---- Study Events (name, key, crfs(name, verson, key))---- ')
 for studyEvent in header.studyEvents:
-    print(studyEvent.name + ' : ' + studyEvent.key)
+    print('   ' + studyEvent.name + ' : ' + studyEvent.key)
+    for crf in studyEvent.caseReportFroms:
+        print('       ' + crf.name + ' : ' + crf.version + ' : ' + crf.key)
